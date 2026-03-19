@@ -538,5 +538,57 @@ footer { text-align: center; color: var(--text-muted); font-size: 12px; padding:
 nSignage Error Code Troubleshooting Guide &mdash; Generated 2026-03-17
 </footer>
 </div>
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var errorCode = params.get('errorCode');
+  if (!errorCode) return;
+
+  var targetId = 'error-' + errorCode;
+  var targetCard = document.getElementById(targetId);
+
+  // If no matching card found, show a "not found" message
+  if (!targetCard) {
+    document.querySelector('.container').innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;">' +
+        '<h1 style="font-size:48px;margin-bottom:16px;">⚠️</h1>' +
+        '<h2 style="color:var(--white);margin-bottom:8px;">Error Code ' + errorCode + ' Not Found</h2>' +
+        '<p style="color:var(--text-muted);margin-bottom:24px;">The specified error code does not exist in this guide.</p>' +
+        '<a href="' + window.location.pathname + '" style="color:var(--accent);text-decoration:none;font-size:15px;">← View All Error Codes</a>' +
+      '</div>';
+    return;
+  }
+
+  // Hide everything inside .container
+  var container = document.querySelector('.container');
+  var children = container.children;
+  for (var i = 0; i < children.length; i++) {
+    children[i].style.display = 'none';
+  }
+
+  // Create the single-error view
+  var wrapper = document.createElement('div');
+  wrapper.style.cssText = 'max-width:960px;margin:0 auto;padding:40px 20px;';
+
+  // Back link
+  var backLink = document.createElement('a');
+  backLink.href = window.location.pathname;
+  backLink.textContent = '← View All Error Codes';
+  backLink.style.cssText = 'display:inline-block;color:var(--accent);text-decoration:none;font-size:15px;margin-bottom:24px;padding:8px 0;transition:opacity 0.2s;';
+  backLink.onmouseover = function() { this.style.opacity = '0.7'; };
+  backLink.onmouseout = function() { this.style.opacity = '1'; };
+
+  // Clone the card and force it visible
+  var cardClone = targetCard.cloneNode(true);
+  cardClone.style.display = 'block';
+  cardClone.style.marginBottom = '0';
+  cardClone.style.borderColor = 'var(--accent)';
+  cardClone.style.boxShadow = '0 0 20px rgba(79,195,247,0.4), 0 0 60px rgba(79,195,247,0.15)';
+
+  wrapper.appendChild(backLink);
+  wrapper.appendChild(cardClone);
+  container.appendChild(wrapper);
+})();
+</script>
 </body>
 </html>
