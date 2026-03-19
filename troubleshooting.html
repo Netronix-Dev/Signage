@@ -89,8 +89,8 @@ footer { text-align: center; color: var(--text-muted); font-size: 12px; padding:
 <a href="#error--13">-13 NO_SCHEDULE</a>
 <a href="#error--14">-14 IMAGE_WRONG_SIZE</a>
 </div>
-<div class="toc-group"><span class="toc-group-title">OTA (-30 ~ -40)</span><br>
-<a href="#error--30">-30</a> <a href="#error--31">-31</a> <a href="#error--32">-32</a> <a href="#error--33">-33</a> <a href="#error--34">-34</a> <a href="#error--35">-35</a> <a href="#error--36">-36</a> <a href="#error--37">-37</a> <a href="#error--38">-38</a> <a href="#error--39">-39</a> <a href="#error--40">-40</a>
+<div class="toc-group"><span class="toc-group-title">OTA (-30 ~ -42)</span><br>
+<a href="#error--30">-30</a> <a href="#error--31">-31</a> <a href="#error--32">-32</a> <a href="#error--33">-33</a> <a href="#error--34">-34</a> <a href="#error--35">-35</a> <a href="#error--36">-36</a> <a href="#error--37">-37</a> <a href="#error--38">-38</a> <a href="#error--39">-39</a> <a href="#error--40">-40</a> <a href="#error--41">-41 INFO_FAIL</a> <a href="#error--42">-42 INFO_TIMEOUT</a>
 </div>
 <div class="toc-group"><span class="toc-group-title">Hardware &amp; System (-50 ~ -52)</span><br>
 <a href="#error--50">-50 HW_REVISION</a>
@@ -493,6 +493,30 @@ footer { text-align: center; color: var(--text-muted); font-size: 12px; padding:
 <tr><td>Message</td><td>upgrade DA BLE fail.</td></tr>
 <tr><td>Description</td><td>The BLE (Bluetooth Low Energy) DA upgrade process failed during installation.</td></tr>
 <tr><td>How to Fix</td><td><ol class="fix-steps"><li>Restart the device and retry the BLE update.</li><li>Check the BLE module status.</li><li>Contact support if the issue persists.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--41">
+<div class="card-header">
+<span class="error-code">-41</span><span class="error-name">OTA_INFO_REQUEST_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block green"></div><div class="block red"></div><div class="block green"></div></div>
+<span class="pattern-label">G, G, R, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>OTA info request failed.</td></tr>
+<tr><td>Description</td><td>The device received an OTA update job from CMS, but the OTA server URL was empty or the update information JSON could not be parsed. The OTA process was aborted at the info-gathering stage before any download was attempted.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the CMS OTA job configuration — ensure the OTA URL field is not empty.</li><li>Verify the OTA server is online and the info JSON files (APKInfo.json, BSPInfo.json, MCUInfo.json) are accessible.</li><li>Check the device log for details on which info request failed.</li><li>Re-send the OTA job from CMS after fixing the configuration.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--42">
+<div class="card-header">
+<span class="error-code">-42</span><span class="error-name">OTA_INFO_REQUEST_TIMEOUT</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block green"></div><div class="block green"></div><div class="block red"></div></div>
+<span class="pattern-label">G, G, G, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>OTA info request timeout.</td></tr>
+<tr><td>Description</td><td>The device sent HTTP requests to the OTA server to retrieve update version information (APK/BSP/MCU info), but did not receive all responses within the 5-minute timeout period. This typically indicates a network connectivity issue between the device and the OTA server.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the device's network connection (Wi-Fi signal strength, LTE signal, etc.).</li><li>Verify the OTA server is online and responding to HTTP requests.</li><li>Check if a firewall or proxy is blocking access to the OTA server URL.</li><li>Restart the device and wait for CMS to re-send the OTA job.</li></ol></td></tr>
 </table></div>
 
 <!-- ============ HARDWARE & SYSTEM ============ -->
