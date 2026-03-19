@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nSignage - Error Code Troubleshooting Guide</title>
+<meta name="description" content="Troubleshooting guide for nSignage error codes with color block references and solutions.">
+<style>
+:root {
+  --bg: #0f1117;
+  --card-bg: #1a1d27;
+  --card-border: #2a2d3a;
+  --text: #e0e0e0;
+  --text-muted: #888;
+  --accent: #4fc3f7;
+  --red: #cc0000;
+  --blue: #0000cc;
+  --green: #009900;
+  --white: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Segoe UI', 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 960px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 28px; color: var(--white); margin-bottom: 8px; }
+.subtitle { color: var(--text-muted); margin-bottom: 24px; font-size: 15px; }
+nav { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px 20px; margin-bottom: 32px; }
+nav h2 { font-size: 16px; color: var(--accent); margin-bottom: 10px; }
+nav .toc-group { margin-bottom: 8px; }
+nav .toc-group-title { font-weight: bold; color: var(--text-muted); font-size: 13px; text-transform: uppercase; margin-bottom: 4px; }
+nav a { color: var(--accent); text-decoration: none; font-size: 13px; margin-right: 12px; display: inline-block; margin-bottom: 2px; }
+nav a:hover { text-decoration: underline; }
+.section-title { font-size: 20px; color: var(--accent); margin: 32px 0 16px; padding-bottom: 6px; border-bottom: 1px solid var(--card-border); }
+.card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 10px; padding: 20px; margin-bottom: 60px; scroll-margin-top: calc(50vh - 150px); transition: border-color 0.3s, box-shadow 0.3s; }
+.card:target { border-color: var(--accent); box-shadow: 0 0 20px rgba(79,195,247,0.4), 0 0 60px rgba(79,195,247,0.15); animation: pulse-glow 2s ease-in-out 3; }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(79,195,247,0.4), 0 0 60px rgba(79,195,247,0.15); }
+  50% { box-shadow: 0 0 30px rgba(79,195,247,0.6), 0 0 80px rgba(79,195,247,0.25); }
+}
+.card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.error-code { font-size: 22px; font-weight: bold; color: var(--white); min-width: 60px; }
+.error-name { font-size: 16px; color: var(--accent); font-family: 'Consolas', monospace; }
+.blocks { display: flex; gap: 4px; }
+.block { width: 40px; height: 40px; border-radius: 3px; }
+.pattern-label { color: var(--text-muted); font-size: 13px; font-family: monospace; }
+.red { background-color: var(--red); }
+.blue { background-color: var(--blue); }
+.green { background-color: var(--green); }
+.info-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.info-table td { padding: 6px 10px; vertical-align: top; border-top: 1px solid var(--card-border); }
+.info-table td:first-child { color: var(--text-muted); font-size: 13px; width: 120px; white-space: nowrap; }
+.info-table td:last-child { color: var(--text); font-size: 14px; }
+.fix-steps { padding-left: 18px; }
+.fix-steps li { margin-bottom: 4px; font-size: 14px; }
+.tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+.tag-error { background: rgba(204,0,0,0.2); color: #ff6666; }
+.tag-status { background: rgba(0,0,204,0.2); color: #6699ff; }
+.tag-ota { background: rgba(0,153,0,0.2); color: #66cc66; }
+.tag-hw { background: rgba(255,165,0,0.2); color: #ffaa44; }
+footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 32px 0 50vh; border-top: 1px solid var(--card-border); margin-top: 32px; }
+.section-spacer { padding-top: 50vh; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>nSignage — Error Code Troubleshooting Guide</h1>
+<p class="subtitle">Color block reference and troubleshooting steps for all error and status codes.</p>
+
+<nav>
+<h2>Table of Contents</h2>
+<div class="toc-group"><span class="toc-group-title">Core Errors (-1 ~ -7)</span><br>
+<a href="#error-0">0 NON_ERROR</a>
+<a href="#error--1">-1 WIFI_AP_CONNECT_FAIL</a>
+<a href="#error--2">-2 DOWNLOAD_PLAN_FAIL</a>
+<a href="#error--3">-3 DOWNLOAD_PICTURE_FAIL</a>
+<a href="#error--4">-4 NO_PLAN_IN_CMS</a>
+<a href="#error--5">-5 MAC_NOT_REGISTERED</a>
+<a href="#error--6">-6 PIC_CHECKSUM_FAIL</a>
+<a href="#error--7">-7 LOW_BATTERY</a>
+</div>
+<div class="toc-group"><span class="toc-group-title">Network &amp; NAS (-8 ~ -14, 443, 444)</span><br>
+<a href="#error-443">443 CONNECT_FAIL_NO_MAC</a>
+<a href="#error-444">444 RESPONSE_PARSING</a>
+<a href="#error--8">-8 DOWNLOADING</a>
+<a href="#error--9">-9 NAS_INFO_FAIL</a>
+<a href="#error--10">-10 NAS_ZIP_FAIL</a>
+<a href="#error--11">-11 NAS_ZIP_ERROR</a>
+<a href="#error--12">-12 OTA_DOWNLOADING</a>
+<a href="#error--13">-13 NO_SCHEDULE</a>
+<a href="#error--14">-14 IMAGE_WRONG_SIZE</a>
+</div>
+<div class="toc-group"><span class="toc-group-title">OTA (-30 ~ -40)</span><br>
+<a href="#error--30">-30</a> <a href="#error--31">-31</a> <a href="#error--32">-32</a> <a href="#error--33">-33</a> <a href="#error--34">-34</a> <a href="#error--35">-35</a> <a href="#error--36">-36</a> <a href="#error--37">-37</a> <a href="#error--38">-38</a> <a href="#error--39">-39</a> <a href="#error--40">-40</a>
+</div>
+<div class="toc-group"><span class="toc-group-title">Hardware &amp; System (-50 ~ -52)</span><br>
+<a href="#error--50">-50 HW_REVISION</a>
+<a href="#error--51">-51 RESET_DEFAULT</a>
+<a href="#error--52">-52 APP_NOT_FOUND</a>
+</div>
+</nav>
+
+<!-- ============ CORE ERRORS ============ -->
+<h2 class="section-title">Core Errors</h2>
+
+<div class="card" id="error-0">
+<div class="card-header">
+<span class="error-code">0</span>
+<span class="error-name">NON_ERROR</span>
+<span class="tag tag-status">STATUS</span>
+<div class="blocks"><div class="block blue"></div><div class="block blue"></div><div class="block blue"></div><div class="block blue"></div></div>
+<span class="pattern-label">B, B, B, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>(none)</td></tr>
+<tr><td>Description</td><td>No error. The device is operating normally.</td></tr>
+<tr><td>Action</td><td>No action required. This is the default state.</td></tr>
+</table>
+</div>
+
+<div class="card" id="error--1">
+<div class="card-header">
+<span class="error-code">-1</span>
+<span class="error-name">WIFI_AP_CONNECT_FAIL</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block red"></div><div class="block red"></div><div class="block red"></div></div>
+<span class="pattern-label">R, R, R, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Connect fail.</td></tr>
+<tr><td>Description</td><td>The device failed to connect to the configured Wi-Fi access point. This may be caused by incorrect credentials, weak signal, or the AP being unavailable.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Verify the Wi-Fi SSID and password are correct.</li><li>Ensure the Wi-Fi access point is powered on and within range.</li><li>Restart the device and try again.</li><li>Re-run device setup if the issue persists.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--2">
+<div class="card-header">
+<span class="error-code">-2</span>
+<span class="error-name">DOWNLOAD_PLAN_FAIL</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block red"></div><div class="block red"></div><div class="block blue"></div></div>
+<span class="pattern-label">R, R, R, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Get schedule from CMS error.</td></tr>
+<tr><td>Description</td><td>The device failed to download the schedule/plan from the CMS server. The server may be unreachable or returned an error.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the device's network connection.</li><li>Verify the CMS server is online and accessible.</li><li>Check CMS settings and ensure a valid plan is assigned to this device.</li><li>Contact your CMS administrator if the problem persists.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--3">
+<div class="card-header">
+<span class="error-code">-3</span>
+<span class="error-name">DOWNLOAD_PICTURE_FAIL</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block red"></div><div class="block blue"></div><div class="block red"></div></div>
+<span class="pattern-label">R, R, B, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Download Fail</td></tr>
+<tr><td>Description</td><td>The device failed to download one or more images from the CMS server.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the device's network connection.</li><li>Verify the image files exist on the CMS server.</li><li>Check available storage on the device.</li><li>Retry by restarting the device.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--4">
+<div class="card-header">
+<span class="error-code">-4</span>
+<span class="error-name">NO_PLAN_IN_CMS</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block red"></div><div class="block blue"></div><div class="block blue"></div></div>
+<span class="pattern-label">R, R, B, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>No plan in CMS</td></tr>
+<tr><td>Description</td><td>The CMS server responded successfully but returned no plan/schedule data for this device.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Log in to the CMS and assign a schedule to this device.</li><li>Ensure the device is registered correctly in CMS.</li><li>Verify the schedule time range covers the current date/time.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--5">
+<div class="card-header">
+<span class="error-code">-5</span>
+<span class="error-name">MAC_ADDRESS_NOT_REGISTERED</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block blue"></div><div class="block red"></div><div class="block red"></div></div>
+<span class="pattern-label">R, B, R, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Device not register</td></tr>
+<tr><td>Description</td><td>The device's MAC address is not registered in the CMS database. The server rejected the device.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Log in to the CMS and add this device's MAC address.</li><li>Verify the MAC address matches the one shown on the device.</li><li>Restart the device after registration.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--6">
+<div class="card-header">
+<span class="error-code">-6</span>
+<span class="error-name">PICTURE_CHECKSUM_FAIL</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block blue"></div><div class="block red"></div><div class="block blue"></div></div>
+<span class="pattern-label">R, B, R, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Picture checksum failed</td></tr>
+<tr><td>Description</td><td>A downloaded image file's checksum does not match the expected value. The file may be corrupted or partially downloaded.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the network connection stability.</li><li>Re-upload the image on the CMS server.</li><li>Restart the device to trigger a re-download.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--7">
+<div class="card-header">
+<span class="error-code">-7</span>
+<span class="error-name">LOW_BATTERY</span>
+<span class="tag tag-status">STATUS</span>
+<div class="blocks"><div class="block red"></div><div class="block blue"></div><div class="block blue"></div><div class="block blue"></div></div>
+<span class="pattern-label">R, B, B, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Low Battery</td></tr>
+<tr><td>Description</td><td>The device battery level is critically low. The device may shut down soon.</td></tr>
+<tr><td>Action</td><td><ol class="fix-steps"><li>Connect the device to a power source immediately.</li><li>Allow the device to charge before resuming operation.</li></ol></td></tr>
+</table>
+</div>
+
+<!-- ============ NETWORK & NAS ============ -->
+<h2 class="section-title">Network &amp; NAS</h2>
+
+<div class="card" id="error-443">
+<div class="card-header">
+<span class="error-code">443</span>
+<span class="error-name">CONNECT_FAIL_WITH_NO_GET_MAC_ADDRESS</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block green"></div><div class="block red"></div><div class="block green"></div></div>
+<span class="pattern-label">R, G, R, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Connect fail. No get MAC-address. Re-connecting...</td></tr>
+<tr><td>Description</td><td>Wi-Fi connection failed and the device could not retrieve its own MAC address. The device is attempting to reconnect automatically.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Verify Wi-Fi AP is available and within range.</li><li>Restart the device.</li><li>If the issue persists, re-run the initial device setup.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error-444">
+<div class="card-header">
+<span class="error-code">444</span>
+<span class="error-name">RESPONSE_PARSING_ERROR</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block red"></div><div class="block green"></div><div class="block blue"></div></div>
+<span class="pattern-label">R, R, G, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Response message is parsing error</td></tr>
+<tr><td>Description</td><td>The CMS server response could not be parsed. The response format may be invalid or corrupted during transmission.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the network connection for stability.</li><li>Verify the CMS server is running the correct version.</li><li>Contact your CMS administrator to check server logs.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--8">
+<div class="card-header">
+<span class="error-code">-8</span>
+<span class="error-name">DOWNLOADING</span>
+<span class="tag tag-status">STATUS</span>
+<div class="blocks"><div class="block blue"></div><div class="block blue"></div><div class="block blue"></div><div class="block blue"></div></div>
+<span class="pattern-label">B, B, B, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Downloading...</td></tr>
+<tr><td>Description</td><td>The device is currently downloading content. This is a normal status indicator, not an error.</td></tr>
+<tr><td>Action</td><td>Please wait for the download to complete. If the download takes too long, check the network connection.</td></tr>
+</table>
+</div>
+
+<div class="card" id="error--9">
+<div class="card-header">
+<span class="error-code">-9</span>
+<span class="error-name">GET_NAS_INFO_FAIL</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block red"></div><div class="block green"></div><div class="block red"></div></div>
+<span class="pattern-label">R, R, G, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Get info from NAS error.</td></tr>
+<tr><td>Description</td><td>The device failed to retrieve information from the NAS (Network Attached Storage) server.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the NAS server is powered on and accessible on the network.</li><li>Verify NAS connection settings on the device.</li><li>Check NAS credentials are correct.</li><li>Restart the device and try again.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--10">
+<div class="card-header">
+<span class="error-code">-10</span>
+<span class="error-name">DOWNLOAD_NAS_ZIP_FAIL</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block red"></div><div class="block green"></div><div class="block green"></div></div>
+<span class="pattern-label">R, R, G, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Download zip Fail</td></tr>
+<tr><td>Description</td><td>The device failed to download a ZIP file from the NAS server.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the network connection to the NAS.</li><li>Verify the ZIP file exists on the NAS.</li><li>Check available storage on the device.</li><li>Restart the device to retry.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--11">
+<div class="card-header">
+<span class="error-code">-11</span>
+<span class="error-name">NAS_ZIP_ERROR</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block blue"></div><div class="block red"></div><div class="block blue"></div></div>
+<span class="pattern-label">R, B, R, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>NAS zip file error</td></tr>
+<tr><td>Description</td><td>The ZIP file downloaded from the NAS is corrupted or cannot be extracted.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Re-upload the ZIP file to the NAS.</li><li>Verify the file is not corrupted on the NAS.</li><li>Check available storage on the device.</li><li>Restart the device to trigger a fresh download.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--12">
+<div class="card-header">
+<span class="error-code">-12</span>
+<span class="error-name">OTA_DOWNLOADING</span>
+<span class="tag tag-status">STATUS</span>
+<div class="blocks"><div class="block blue"></div><div class="block blue"></div><div class="block blue"></div><div class="block blue"></div></div>
+<span class="pattern-label">B, B, B, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Update via OTA</td></tr>
+<tr><td>Description</td><td>The device is downloading and installing an OTA (Over-The-Air) update. This is a normal status indicator.</td></tr>
+<tr><td>Action</td><td>Please wait for the update to complete. Do not power off the device during the update.</td></tr>
+</table>
+</div>
+
+<div class="card" id="error--13">
+<div class="card-header">
+<span class="error-code">-13</span>
+<span class="error-name">NO_AVAILABLE_SCHEDULE</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block green"></div><div class="block green"></div><div class="block red"></div></div>
+<span class="pattern-label">R, G, G, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>No Available Schedule</td></tr>
+<tr><td>Description</td><td>The device has no playable schedule for the current date and time. A schedule may have expired or none has been assigned.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Log in to the CMS and verify a schedule is assigned to this device.</li><li>Check that the schedule covers the current date and time range.</li><li>Assign a new schedule if the previous one has expired.</li></ol></td></tr>
+</table>
+</div>
+
+<div class="card" id="error--14">
+<div class="card-header">
+<span class="error-code">-14</span>
+<span class="error-name">IMAGE_WRONG_SIZE</span>
+<span class="tag tag-error">ERROR</span>
+<div class="blocks"><div class="block red"></div><div class="block green"></div><div class="block green"></div><div class="block blue"></div></div>
+<span class="pattern-label">R, G, G, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Image is wrong size.</td></tr>
+<tr><td>Description</td><td>A downloaded image has incorrect dimensions that do not match the device's display resolution.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the image dimensions match the device screen resolution.</li><li>Re-upload correctly sized images to the CMS.</li><li>Restart the device after fixing the images.</li></ol></td></tr>
+</table>
+</div>
+
+<!-- ============ OTA ERRORS ============ -->
+<h2 class="section-title">OTA Update Errors</h2>
+
+<div class="card" id="error--30">
+<div class="card-header">
+<span class="error-code">-30</span><span class="error-name">OTA_APK_DOWNLOAD_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block red"></div><div class="block red"></div></div>
+<span class="pattern-label">G, R, R, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Apk file Download Failed!</td></tr>
+<tr><td>Description</td><td>The device failed to download the APK update file from the OTA server.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the network connection.</li><li>Verify the OTA server is accessible.</li><li>Restart the device to retry the download.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--31">
+<div class="card-header">
+<span class="error-code">-31</span><span class="error-name">OTA_APK_NOT_EXIST</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block red"></div><div class="block blue"></div></div>
+<span class="pattern-label">G, R, R, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Apk file NOT exist!</td></tr>
+<tr><td>Description</td><td>The expected APK update file does not exist on the device after download.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check available storage on the device.</li><li>Verify the OTA update file exists on the server.</li><li>Restart the device to retry.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--32">
+<div class="card-header">
+<span class="error-code">-32</span><span class="error-name">OTA_DA_JSON_ERROR</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block red"></div><div class="block green"></div></div>
+<span class="pattern-label">G, R, R, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Update DA Json file error!</td></tr>
+<tr><td>Description</td><td>The DA (Device Agent) JSON configuration file for OTA update is malformed or missing.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Verify the OTA update configuration on the server.</li><li>Contact your administrator to check the update manifest.</li><li>Restart the device to retry.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--33">
+<div class="card-header">
+<span class="error-code">-33</span><span class="error-name">OTA_UPGRADE_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block blue"></div><div class="block red"></div></div>
+<span class="pattern-label">G, R, B, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Upgrade OTA Process Failed!</td></tr>
+<tr><td>Description</td><td>The OTA upgrade process failed during installation.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Restart the device and retry the OTA update.</li><li>Check device storage is sufficient.</li><li>Verify the update file integrity.</li><li>Contact support if the issue persists.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--34">
+<div class="card-header">
+<span class="error-code">-34</span><span class="error-name">OTA_BSP_DOWNLOAD_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block blue"></div><div class="block blue"></div></div>
+<span class="pattern-label">G, R, B, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Update Zip file download Failed!</td></tr>
+<tr><td>Description</td><td>The BSP (Board Support Package) update ZIP file failed to download.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the network connection.</li><li>Verify the update file exists on the OTA server.</li><li>Restart the device to retry.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--35">
+<div class="card-header">
+<span class="error-code">-35</span><span class="error-name">OTA_BSP_NOT_EXIST</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block blue"></div><div class="block green"></div></div>
+<span class="pattern-label">G, R, B, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Update zip NOT exist!</td></tr>
+<tr><td>Description</td><td>The BSP update ZIP file does not exist on the device after download attempt.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check available storage on the device.</li><li>Verify the update file on the server.</li><li>Restart the device to retry.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--36">
+<div class="card-header">
+<span class="error-code">-36</span><span class="error-name">OTA_BSP_COPY_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block green"></div><div class="block red"></div></div>
+<span class="pattern-label">G, R, G, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Update zip copy fail.</td></tr>
+<tr><td>Description</td><td>The update ZIP file could not be copied to the target location on the device.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check available storage on the device.</li><li>Restart the device and retry.</li><li>Contact support if the issue persists.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--37">
+<div class="card-header">
+<span class="error-code">-37</span><span class="error-name">OTA_DA_NO_URL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block green"></div><div class="block blue"></div></div>
+<span class="pattern-label">G, R, G, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>No available update url.</td></tr>
+<tr><td>Description</td><td>No OTA update URL was provided in the update configuration.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Verify the OTA configuration on the server includes a valid download URL.</li><li>Contact your administrator to update the OTA manifest.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--38">
+<div class="card-header">
+<span class="error-code">-38</span><span class="error-name">OTA_DA_WIFI_DOWNLOAD_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block red"></div><div class="block green"></div><div class="block green"></div></div>
+<span class="pattern-label">G, R, G, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Download DA Wifi fail.</td></tr>
+<tr><td>Description</td><td>Failed to download the DA (Device Agent) Wi-Fi configuration update.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the device's Wi-Fi connection.</li><li>Verify the update server is accessible.</li><li>Restart the device to retry.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--39">
+<div class="card-header">
+<span class="error-code">-39</span><span class="error-name">OTA_DA_BLE_DOWNLOAD_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block green"></div><div class="block red"></div><div class="block red"></div></div>
+<span class="pattern-label">G, G, R, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Download DA BLE fail.</td></tr>
+<tr><td>Description</td><td>Failed to download the DA (Device Agent) BLE (Bluetooth Low Energy) update.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Check the device's network connection.</li><li>Verify the BLE update file exists on the server.</li><li>Restart the device to retry.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--40">
+<div class="card-header">
+<span class="error-code">-40</span><span class="error-name">OTA_DA_BLE_UPGRADE_FAIL</span><span class="tag tag-ota">OTA</span>
+<div class="blocks"><div class="block green"></div><div class="block green"></div><div class="block red"></div><div class="block blue"></div></div>
+<span class="pattern-label">G, G, R, B</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>upgrade DA BLE fail.</td></tr>
+<tr><td>Description</td><td>The BLE (Bluetooth Low Energy) DA upgrade process failed during installation.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Restart the device and retry the BLE update.</li><li>Check the BLE module status.</li><li>Contact support if the issue persists.</li></ol></td></tr>
+</table></div>
+
+<!-- ============ HARDWARE & SYSTEM ============ -->
+<h2 class="section-title">Hardware &amp; System</h2>
+
+<div class="card" id="error--50">
+<div class="card-header">
+<span class="error-code">-50</span><span class="error-name">HARDWARE_REVISION_ERROR</span><span class="tag tag-hw">HARDWARE</span>
+<div class="blocks"><div class="block red"></div><div class="block green"></div><div class="block blue"></div><div class="block red"></div></div>
+<span class="pattern-label">R, G, B, R</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Hardware Revision Error</td></tr>
+<tr><td>Description</td><td>The device hardware revision does not match the expected configuration. The firmware may be incompatible with this hardware.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Verify the correct firmware version for this hardware revision.</li><li>Contact the hardware vendor for compatibility information.</li><li>Reinstall the appropriate firmware version.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--51">
+<div class="card-header">
+<span class="error-code">-51</span><span class="error-name">RESET_TO_DEFAULT</span><span class="tag tag-hw">SYSTEM</span>
+<div class="blocks"><div class="block red"></div><div class="block green"></div><div class="block blue"></div><div class="block green"></div></div>
+<span class="pattern-label">R, G, B, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>Reset to default!</td></tr>
+<tr><td>Description</td><td>The device has been reset to factory default settings. All configuration has been cleared.</td></tr>
+<tr><td>Action</td><td><ol class="fix-steps"><li>Re-configure the device with the correct settings.</li><li>Re-connect to Wi-Fi and CMS.</li><li>Re-assign schedules in CMS if needed.</li></ol></td></tr>
+</table></div>
+
+<div class="card" id="error--52">
+<div class="card-header">
+<span class="error-code">-52</span><span class="error-name">APP_NOT_FOUND</span><span class="tag tag-hw">SYSTEM</span>
+<div class="blocks"><div class="block red"></div><div class="block green"></div><div class="block green"></div><div class="block green"></div></div>
+<span class="pattern-label">R, G, G, G</span>
+</div>
+<table class="info-table">
+<tr><td>Message</td><td>APP NOT FIND !</td></tr>
+<tr><td>Description</td><td>A required application was not found on the device. The app may have been uninstalled or not properly installed.</td></tr>
+<tr><td>How to Fix</td><td><ol class="fix-steps"><li>Reinstall the required application via OTA or manual installation.</li><li>Verify the app package name is correct.</li><li>Contact support for assistance.</li></ol></td></tr>
+</table></div>
+
+<footer>
+nSignage Error Code Troubleshooting Guide &mdash; Generated 2026-03-17
+</footer>
+</div>
+</body>
+</html>
